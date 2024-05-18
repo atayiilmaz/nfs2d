@@ -12,7 +12,7 @@ class RacingGame:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(MAIN_FONT, 44)
         self.collision_sound = pygame.mixer.Sound("assets/sounds/car_crash.wav")
-        self.car_move_sound = pygame.mixer.Sound("assets/sounds/car_acceleration.wav")
+        self.car_move_sound = pygame.mixer.Sound("assets/sounds/car_move.wav")
         self.tire_sound = pygame.mixer.Sound("assets/sounds/tires_squal_loop.wav")
         self.car_move_sound.set_volume(0.1)
         self.collision_sound.set_volume(0.5)
@@ -37,6 +37,26 @@ class RacingGame:
         self.computer_car = ComputerCar(self.green_car, 2, 4, PATH, self.car_move_sound)
         self.game_info = GameInfo()
 
+
+        self.all_sprites = pygame.sprite.Group()
+        self.track_border_group = pygame.sprite.Group()
+        self.finish_group = pygame.sprite.Group()
+
+        self.all_sprites.add(self.player_car, self.computer_car)
+
+        # Create sprite objects for track border and finish line
+        self.track_border_sprite = pygame.sprite.Sprite()
+        self.track_border_sprite.image = self.track_border
+        self.track_border_sprite.rect = self.track_border_sprite.image.get_rect()
+        self.track_border_sprite.mask = self.track_border_mask
+        self.track_border_group.add(self.track_border_sprite)
+
+        self.finish_sprite = pygame.sprite.Sprite()
+        self.finish_sprite.image = self.finish
+        self.finish_sprite.rect = self.finish_sprite.image.get_rect(topleft=self.finish_position)
+        self.finish_sprite.mask = self.finish_mask
+        self.finish_group.add(self.finish_sprite)
+
     def draw(self):
         for img, pos in self.images:
             self.win.blit(img, pos)
@@ -50,8 +70,7 @@ class RacingGame:
         vel_text = self.font.render(f"Vel: {round(self.player_car.vel, 1)}px/s", 1, (255, 255, 255))
         self.win.blit(vel_text, (10, SCREEN_HEIGHT - vel_text.get_height() - 10))
 
-        self.player_car.draw(self.win)
-        self.computer_car.draw(self.win)
+        self.all_sprites.draw(self.win)
         pygame.display.update()
 
     def move_player(self):
@@ -74,25 +93,20 @@ class RacingGame:
             self.player_car.reduce_speed()
 
     def handle_collision(self):
-        if self.player_car.collide(self.track_border_mask):
+        if pygame.sprite.spritecollide(self.player_car, self.track_border_group, False, pygame.sprite.collide_mask):
             pygame.mixer.Channel(3).play(self.collision_sound)
             self.player_car.bounce()
 
-        computer_finish_poi_collide = self.computer_car.collide(self.finish_mask, *self.finish_position)
-        if computer_finish_poi_collide:
+        if pygame.sprite.spritecollide(self.computer_car, self.finish_group, False, pygame.sprite.collide_mask):
             blit_text_center(self.win, self.font, "You lost!")
             pygame.display.update()
-            pygame.time.wait(3000)
+            pygame.time.wait(2000)
             self.game_info.reset()
             self.player_car.reset((180, 200))
-            self.computer_car.reset((150,200))
+            self.computer_car.reset((150, 200))
 
-        player_finish_poi_collide = self.player_car.collide(self.finish_mask, *self.finish_position)
-        if player_finish_poi_collide:
-            if player_finish_poi_collide[1] == 0:
-                pygame.mixer.Channel(3).play(self.collision_sound)
-                self.player_car.bounce()
-            else:
+        if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
+            if self.finish_mask.overlap(pygame.mask.from_surface(self.player_car.image), (int(self.player_car.rect.x - self.finish_position[0]), int(self.player_car.rect.y - self.finish_position[1]))) is not None:
                 self.game_info.next_level()
                 self.player_car.reset((180, 200))
                 self.computer_car.next_level(self.game_info.level)
