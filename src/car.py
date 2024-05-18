@@ -1,10 +1,13 @@
+# src/car.py
 import pygame
 import math
 from src.utils import blit_rotate_center
 
-class AbstractCar:
+class AbstractCar(pygame.sprite.Sprite):
     def __init__(self, img, max_vel, rotation_vel, start_pos, engine_sound):
-        self.img = img
+        super().__init__()
+        self.image = img
+        self.original_image = img
         self.max_vel = max_vel
         self.vel = 0
         self.rotation_vel = rotation_vel
@@ -13,26 +16,31 @@ class AbstractCar:
         self.acceleration = 0.1
         self.engine_sound = engine_sound
         self.sound_playing = False
+        self.rect = self.image.get_rect(center=(self.x, self.y))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def rotate(self, left=False, right=False):
         if left:
             self.angle += self.rotation_vel
         elif right:
             self.angle -= self.rotation_vel
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def draw(self, win):
-        blit_rotate_center(win, self.img, (self.x, self.y), self.angle)
+        win.blit(self.image, self.rect.topleft)
 
     def move_forward(self):
         if not self.sound_playing:
-            self.engine_sound.play(-1)
+            self.engine_sound.play(-1, fade_ms=1000)
             self.sound_playing = True
         self.vel = min(self.vel + self.acceleration, self.max_vel)
         self.move()
 
     def move_backward(self):
         if not self.sound_playing:
-            self.engine_sound.play(-1)
+            self.engine_sound.play(-1, fade_ms=1000)
             self.sound_playing = True
         self.vel = max(self.vel - self.acceleration, -self.max_vel / 2)
         self.move()
@@ -44,17 +52,15 @@ class AbstractCar:
 
         self.y -= vertical
         self.x -= horizontal
-
-    def collide(self, mask, x=0, y=0):
-        car_mask = pygame.mask.from_surface(self.img)
-        offset = (int(self.x - x), int(self.y - y))
-        poi = mask.overlap(car_mask, offset)
-        return poi
+        self.rect.center = (self.x, self.y)
 
     def reset(self, start_pos):
         self.x, self.y = start_pos
         self.angle = 0
         self.vel = 0
+        self.rect.center = (self.x, self.y)
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 class PlayerCar(AbstractCar):
@@ -75,7 +81,7 @@ class PlayerCar(AbstractCar):
 
 class ComputerCar(AbstractCar):
     def __init__(self, img, max_vel, rotation_vel, path, engine_sound):
-        super().__init__(img, max_vel, rotation_vel, (150,200), engine_sound)
+        super().__init__(img, max_vel, rotation_vel, path[0], engine_sound)
         self.path = path
         self.current_point = 0
         self.vel = max_vel
@@ -109,11 +115,13 @@ class ComputerCar(AbstractCar):
             self.angle -= min(self.rotation_vel, abs(difference_in_angle))
         else:
             self.angle += min(self.rotation_vel, abs(difference_in_angle))
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update_path_point(self):
         target = self.path[self.current_point]
-        rect = pygame.Rect(self.x, self.y, self.img.get_width(), self.img.get_height())
-        if rect.collidepoint(*target):
+        if self.rect.collidepoint(*target):
             self.current_point += 1
 
     def move(self):
@@ -125,6 +133,6 @@ class ComputerCar(AbstractCar):
         super().move()
 
     def next_level(self, level):
-        self.reset((150, 200))
+        self.reset(self.path[0])
         self.vel = self.max_vel + (level - 1) * 0.2
         self.current_point = 0
