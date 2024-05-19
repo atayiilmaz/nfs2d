@@ -15,7 +15,8 @@ class RacingGame:
         self.car_move_sound = pygame.mixer.Sound("assets/sounds/car_move.wav")
         self.tire_sound = pygame.mixer.Sound("assets/sounds/tires_squal_loop.wav")
         self.car_move_sound.set_volume(0.1)
-        self.collision_sound.set_volume(0.5)
+        self.collision_sound.set_volume(0.2)
+        self.tire_sound.set_volume(0.2)
         self.load_assets()
         self.setup()
 
@@ -33,18 +34,15 @@ class RacingGame:
     def setup(self):
         self.images = [(self.grass, (0, 0)), (self.track, (0, 0)),
                        (self.finish, self.finish_position), (self.track_border, (0, 0))]
-        self.player_car = PlayerCar(self.red_car, 4, 4, (180,200), self.car_move_sound)
+        self.player_car = PlayerCar(self.red_car, 4, 4, (190,200), self.car_move_sound)
         self.computer_car = ComputerCar(self.green_car, 2, 4, PATH, self.car_move_sound)
         self.game_info = GameInfo()
-
 
         self.all_sprites = pygame.sprite.Group()
         self.track_border_group = pygame.sprite.Group()
         self.finish_group = pygame.sprite.Group()
-
         self.all_sprites.add(self.player_car, self.computer_car)
 
-        # Create sprite objects for track border and finish line
         self.track_border_sprite = pygame.sprite.Sprite()
         self.track_border_sprite.image = self.track_border
         self.track_border_sprite.rect = self.track_border_sprite.image.get_rect()
@@ -102,13 +100,13 @@ class RacingGame:
             pygame.display.update()
             pygame.time.wait(2000)
             self.game_info.reset()
-            self.player_car.reset((180, 200))
-            self.computer_car.reset((150, 200))
+            self.player_car.reset((190, 200))
+            self.computer_car.reset((160, 200))
 
         if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
             if self.finish_mask.overlap(pygame.mask.from_surface(self.player_car.image), (int(self.player_car.rect.x - self.finish_position[0]), int(self.player_car.rect.y - self.finish_position[1]))) is not None:
                 self.game_info.next_level()
-                self.player_car.reset((180, 200))
+                self.player_car.reset((190, 200))
                 self.computer_car.next_level(self.game_info.level)
 
     def run(self):
@@ -140,5 +138,5 @@ class RacingGame:
                 blit_text_center(self.win, self.font, "You won the game!")
                 pygame.time.wait(5000)
                 self.game_info.reset()
-                self.player_car.reset((180, 200))
-                self.computer_car.reset((150, 200))
+                self.player_car.reset((190, 200))
+                self.computer_car.reset((160, 200))

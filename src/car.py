@@ -81,7 +81,7 @@ class PlayerCar(AbstractCar):
 
 class ComputerCar(AbstractCar):
     def __init__(self, img, max_vel, rotation_vel, path, engine_sound):
-        super().__init__(img, max_vel, rotation_vel, path[0], engine_sound)
+        super().__init__(img, max_vel, rotation_vel, (160,200), engine_sound)
         self.path = path
         self.current_point = 0
         self.vel = max_vel
@@ -92,7 +92,7 @@ class ComputerCar(AbstractCar):
 
     def draw(self, win):
         super().draw(win)
-        # self.draw_points(win)
+        self.draw_points(win)
 
     def calculate_angle(self):
         target_x, target_y = self.path[self.current_point]
@@ -133,6 +133,6 @@ class ComputerCar(AbstractCar):
         super().move()
 
     def next_level(self, level):
-        self.reset(self.path[0])
+        self.reset((160,200))
         self.vel = self.max_vel + (level - 1) * 0.2
         self.current_point = 0
