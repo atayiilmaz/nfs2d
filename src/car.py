@@ -62,7 +62,6 @@ class AbstractCar(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, self.angle)
         self.mask = pygame.mask.from_surface(self.image)
 
-
 class PlayerCar(AbstractCar):
     def __init__(self, img, max_vel, rotation_vel, start_pos, engine_sound):
         super().__init__(img, max_vel, rotation_vel, start_pos, engine_sound)
@@ -75,9 +74,8 @@ class PlayerCar(AbstractCar):
             self.sound_playing = False
 
     def bounce(self):
-        self.vel = -self.vel
+        self.vel = -self.vel * 0.5
         self.move()
-
 
 class ComputerCar(AbstractCar):
     def __init__(self, img, max_vel, rotation_vel, path, engine_sound):
@@ -131,6 +129,10 @@ class ComputerCar(AbstractCar):
         self.calculate_angle()
         self.update_path_point()
         super().move()
+
+    def bounce(self):
+        self.vel = -self.vel * 0.5
+        self.move()
 
     def next_level(self, level):
         self.reset((160,200))

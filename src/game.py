@@ -28,8 +28,8 @@ class RacingGame:
         self.finish = pygame.image.load(FINISH_IMG)
         self.finish_mask = pygame.mask.from_surface(self.finish)
         self.finish_position = (130, 250)
-        self.red_car = scale_image(pygame.image.load(RED_CAR_IMG), 0.5)
-        self.green_car = scale_image(pygame.image.load(GREEN_CAR_IMG), 0.5)
+        self.red_car = scale_image(pygame.image.load(RED_CAR_IMG), 0.4)
+        self.green_car = scale_image(pygame.image.load(GREEN_CAR_IMG), 0.4)
 
     def setup(self):
         self.images = [(self.grass, (0, 0)), (self.track, (0, 0)),
@@ -94,6 +94,16 @@ class RacingGame:
         if pygame.sprite.spritecollide(self.player_car, self.track_border_group, False, pygame.sprite.collide_mask):
             pygame.mixer.Channel(3).play(self.collision_sound)
             self.player_car.bounce()
+
+        if pygame.sprite.spritecollide(self.computer_car, self.track_border_group, False, pygame.sprite.collide_mask):
+            # pygame.mixer.Channel(3).play(self.collision_sound)
+            self.computer_car.bounce()
+
+        if pygame.sprite.spritecollide(self.player_car, [self.computer_car], False):
+            self.player_car.bounce()
+
+        if pygame.sprite.spritecollide(self.computer_car, [self.player_car], False):
+            self.computer_car.bounce()
 
         if pygame.sprite.spritecollide(self.computer_car, self.finish_group, False, pygame.sprite.collide_mask):
             blit_text_center(self.win, self.font, "You lost!")
