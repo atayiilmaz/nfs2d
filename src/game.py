@@ -65,6 +65,9 @@ class RacingGame:
 
     def draw_mode_selection(self):
         self.win.fill((0, 0, 0))
+
+        title_text = self.font.render("Select Game Mode", True, (255, 255, 255))
+        self.win.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
         single_player_text = self.font.render("Single Player (Press 1)", True, (255, 255, 255))
         two_player_text = self.font.render("Two Player (Press 2)", True, (255, 255, 255))
         self.win.blit(single_player_text, (SCREEN_WIDTH // 2 - single_player_text.get_width() // 2, SCREEN_HEIGHT // 2 - 50))
