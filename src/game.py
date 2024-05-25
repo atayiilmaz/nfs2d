@@ -44,7 +44,7 @@ class RacingGame:
             self.all_sprites.add(self.player_car, self.computer_car)
         elif self.game_mode == "two":
             self.player_car = PlayerCar(self.red_car, 4, 4, (190, 200), self.car_move_sound)
-            self.player2_car = PlayerCar(self.purple_car, 2, 4, (160, 200), self.car_move_sound)
+            self.player2_car = PlayerCar(self.purple_car, 2, 2, (160, 200), self.car_move_sound)
             self.all_sprites.add(self.player_car, self.player2_car)
 
         self.game_info = GameInfo()
@@ -86,19 +86,22 @@ class RacingGame:
 
     def move_player(self):
         keys = pygame.key.get_pressed()
-        moved = False
+        moved1 = False
+        moved2 = False
 
         if keys[pygame.K_a]:
             self.player_car.rotate(left=True)
         if keys[pygame.K_d]:
             self.player_car.rotate(right=True)
         if keys[pygame.K_w]:
-            moved = True
+            moved1 = True
             self.player_car.move_forward()
         if keys[pygame.K_s]:
             pygame.mixer.Channel(1).play(self.tire_sound, 0, 500)
-            moved = True
+            moved1 = True
             self.player_car.move_backward()
+        if not moved1:
+            self.player_car.reduce_speed()
 
         if self.game_mode == "two":
             if keys[pygame.K_LEFT]:
@@ -106,16 +109,15 @@ class RacingGame:
             if keys[pygame.K_RIGHT]:
                 self.player2_car.rotate(right=True)
             if keys[pygame.K_UP]:
-                moved = True
+                moved2 = True
                 self.player2_car.move_forward()
             if keys[pygame.K_DOWN]:
                 pygame.mixer.Channel(1).play(self.tire_sound, 0, 500)
-                moved = True
+                moved2 = True
                 self.player2_car.move_backward()
+            if not moved2:
+                self.player2_car.reduce_speed()
 
-        if not moved:
-            self.player_car.reduce_speed()
-            self.player2_car.reduce_speed()
 
     def handle_collision(self):
         if self.game_mode == "single":
@@ -129,15 +131,17 @@ class RacingGame:
             if pygame.sprite.spritecollide(self.computer_car, self.finish_group, False, pygame.sprite.collide_mask):
                 blit_text_center(self.win, self.font, "You lost!")
                 pygame.display.update()
-                pygame.time.wait(2000)
+                pygame.time.wait(1000)
                 self.game_info.reset()
                 self.player_car.reset((190, 200))
                 self.computer_car.reset((160, 200))
             if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
-                if self.finish_mask.overlap(pygame.mask.from_surface(self.player_car.image), (int(self.player_car.rect.x - self.finish_position[0]), int(self.player_car.rect.y - self.finish_position[1]))) is not None:
-                    self.game_info.next_level()
-                    self.player_car.reset((190, 200))
-                    self.computer_car.next_level(self.game_info.level)
+                blit_text_center(self.win, self.font, f"Level {self.game_info.level} completed! Finished in {self.game_info.get_level_time()} seconds!")
+                pygame.display.update()
+                pygame.time.wait(1000)
+                self.game_info.next_level()
+                self.player_car.reset((190, 200))
+                self.computer_car.next_level(self.game_info.level)
 
         if self.game_mode == "two":
             if pygame.sprite.spritecollide(self.player2_car, self.track_border_group, False, pygame.sprite.collide_mask):
@@ -148,16 +152,16 @@ class RacingGame:
             if pygame.sprite.spritecollide(self.player_car, [self.player2_car], False, pygame.sprite.collide_mask):
                 self.player_car.bounce()
             if pygame.sprite.spritecollide(self.player2_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, "Player 2 won!")
+                blit_text_center(self.win, self.font, f"Player 2 won! Finished in {self.game_info.get_level_time()} seconds!")
                 pygame.display.update()
-                pygame.time.wait(2000)
+                pygame.time.wait(1000)
                 self.game_info.reset()
                 self.player_car.reset((190, 200))
                 self.player2_car.reset((160, 200))
             if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, "Player 1 won!")
+                blit_text_center(self.win, self.font, f"Player 1 won! Finished in {self.game_info.get_level_time()}seconds!")
                 pygame.display.update()
-                pygame.time.wait(2000)
+                pygame.time.wait(1000)
                 self.game_info.reset()
                 self.player_car.reset((190, 200))
                 self.player2_car.reset((160, 200))
@@ -173,11 +177,10 @@ class RacingGame:
             self.clock.tick(FPS)
             self.draw()
 
-            if not gameState:
-                self.draw_mode_selection()
-                gameState = True
-
             while not self.game_info.started:
+                if not gameState:
+                    self.draw_mode_selection()
+                    gameState = True
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -189,12 +192,18 @@ class RacingGame:
                             self.setup()
                         elif event.key == pygame.K_2:
                             self.game_mode = "two"
-                            self.setup()   
+                            self.setup()
+                        elif event.key == pygame.K_ESCAPE:
+                            self.draw_mode_selection()
                         self.game_info.start_level()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        gameState = False
+                        self.draw_mode_selection()
 
             self.move_player()
             if self.game_mode == "single":
