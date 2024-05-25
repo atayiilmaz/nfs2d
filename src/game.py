@@ -118,7 +118,6 @@ class RacingGame:
             if not moved2:
                 self.player2_car.reduce_speed()
 
-
     def handle_collision(self):
         if self.game_mode == "single":
             if pygame.sprite.spritecollide(self.computer_car, self.track_border_group, False, pygame.sprite.collide_mask):
@@ -129,19 +128,25 @@ class RacingGame:
             if pygame.sprite.spritecollide(self.player_car, [self.computer_car], False, pygame.sprite.collide_mask):
                 self.player_car.bounce()
             if pygame.sprite.spritecollide(self.computer_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, "You lost!")
-                pygame.display.update()
-                pygame.time.wait(1000)
-                self.game_info.reset()
-                self.player_car.reset((190, 200))
-                self.computer_car.reset((160, 200))
+                if self.computer_car.collide_top(self.finish_mask, *self.finish_position):
+                    self.computer_car.bounce()
+                else:
+                    blit_text_center(self.win, self.font, "You lost!")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                    self.game_info.reset()
+                    self.player_car.reset((190, 200))
+                    self.computer_car.reset((160, 200))
             if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, f"Level {self.game_info.level} completed! Finished in {self.game_info.get_level_time()} seconds!")
-                pygame.display.update()
-                pygame.time.wait(1000)
-                self.game_info.next_level()
-                self.player_car.reset((190, 200))
-                self.computer_car.next_level(self.game_info.level)
+                if self.player_car.collide_top(self.finish_mask, *self.finish_position):
+                    self.player_car.bounce()
+                else:
+                    blit_text_center(self.win, self.font, f"Level {self.game_info.level} completed! Finished in {self.game_info.get_level_time()} seconds!")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                    self.game_info.next_level()
+                    self.player_car.reset((190, 200))
+                    self.computer_car.next_level(self.game_info.level)
 
         if self.game_mode == "two":
             if pygame.sprite.spritecollide(self.player2_car, self.track_border_group, False, pygame.sprite.collide_mask):
@@ -152,19 +157,25 @@ class RacingGame:
             if pygame.sprite.spritecollide(self.player_car, [self.player2_car], False, pygame.sprite.collide_mask):
                 self.player_car.bounce()
             if pygame.sprite.spritecollide(self.player2_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, f"Player 2 won! Finished in {self.game_info.get_level_time()} seconds!")
-                pygame.display.update()
-                pygame.time.wait(1000)
-                self.game_info.reset()
-                self.player_car.reset((190, 200))
-                self.player2_car.reset((160, 200))
+                if self.player2_car.collide_top(self.finish_mask, *self.finish_position):
+                    self.player2_car.bounce()
+                else:
+                    blit_text_center(self.win, self.font, f"Player 2 won! Finished in {self.game_info.get_level_time()} seconds!")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                    self.game_info.reset()
+                    self.player_car.reset((190, 200))
+                    self.player2_car.reset((160, 200))
             if pygame.sprite.spritecollide(self.player_car, self.finish_group, False, pygame.sprite.collide_mask):
-                blit_text_center(self.win, self.font, f"Player 1 won! Finished in {self.game_info.get_level_time()}seconds!")
-                pygame.display.update()
-                pygame.time.wait(1000)
-                self.game_info.reset()
-                self.player_car.reset((190, 200))
-                self.player2_car.reset((160, 200))
+                if self.player_car.collide_top(self.finish_mask, *self.finish_position):
+                    self.player_car.bounce()
+                else:
+                    blit_text_center(self.win, self.font, f"Player 1 won! Finished in {self.game_info.get_level_time()}seconds!")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                    self.game_info.reset()
+                    self.player_car.reset((190, 200))
+                    self.player2_car.reset((160, 200))
 
         if pygame.sprite.spritecollide(self.player_car, self.track_border_group, False, pygame.sprite.collide_mask):
             pygame.mixer.Channel(3).play(self.collision_sound)

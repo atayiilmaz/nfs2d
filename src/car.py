@@ -19,6 +19,14 @@ class AbstractCar(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(self.x, self.y))
         self.mask = pygame.mask.from_surface(self.image)
 
+    def collide_top(self, mask, x=0, y=0):
+        offset = (int(self.rect.left - x), int(self.rect.top - y))
+        poi = mask.overlap(self.mask, offset)
+        if poi:
+            # Check if the collision point is at the top of the mask
+            return poi[1] == 0
+        return False
+
     def rotate(self, left=False, right=False):
         if left:
             self.angle += self.rotation_vel
