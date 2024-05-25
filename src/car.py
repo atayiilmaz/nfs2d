@@ -1,4 +1,3 @@
-# src/car.py
 import pygame
 import math
 from src.utils import blit_rotate_center
@@ -128,6 +127,7 @@ class ComputerCar(AbstractCar):
 
         self.calculate_angle()
         self.update_path_point()
+        self.vel = min(self.vel + self.acceleration, self.max_vel)
         super().move()
 
     def bounce(self):

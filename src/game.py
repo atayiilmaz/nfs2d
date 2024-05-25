@@ -65,7 +65,7 @@ class RacingGame:
         time_text = self.font.render(f"Time: {self.game_info.get_level_time()}s", 1, (255, 255, 255))
         self.win.blit(time_text, (10, SCREEN_HEIGHT - time_text.get_height() - 40))
 
-        vel_text = self.font.render(f"Vel: {round(self.player_car.vel, 1)}px/s", 1, (255, 255, 255))
+        vel_text = self.font.render(f"Vel: {round(self.computer_car.vel, 1)}px/s", 1, (255, 255, 255))
         self.win.blit(vel_text, (10, SCREEN_HEIGHT - vel_text.get_height() - 10))
 
         self.all_sprites.draw(self.win)
@@ -99,10 +99,10 @@ class RacingGame:
             # pygame.mixer.Channel(3).play(self.collision_sound)
             self.computer_car.bounce()
 
-        if pygame.sprite.spritecollide(self.player_car, [self.computer_car], False):
+        if pygame.sprite.spritecollide(self.player_car, [self.computer_car], False, pygame.sprite.collide_mask):
             self.player_car.bounce()
 
-        if pygame.sprite.spritecollide(self.computer_car, [self.player_car], False):
+        if pygame.sprite.spritecollide(self.computer_car, [self.player_car], False, pygame.sprite.collide_mask):
             self.computer_car.bounce()
 
         if pygame.sprite.spritecollide(self.computer_car, self.finish_group, False, pygame.sprite.collide_mask):
