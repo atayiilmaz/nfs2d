@@ -1,6 +1,7 @@
 import pygame
 import math
 from src.utils import blit_rotate_center
+import random
 
 class AbstractCar(pygame.sprite.Sprite):
     def __init__(self, img, max_vel, rotation_vel, start_pos, engine_sound):
@@ -79,9 +80,21 @@ class PlayerCar(AbstractCar):
 class ComputerCar(AbstractCar):
     def __init__(self, img, max_vel, rotation_vel, path, engine_sound):
         super().__init__(img, max_vel, rotation_vel, (160,200), engine_sound)
-        self.path = path
+        self.original_path = path
+        self.path = self.randomize_path(path)
         self.current_point = 0
         self.vel = max_vel
+
+    def randomize_path(self, path):
+        new_path = []
+        for point in path:
+            offset_x = random.uniform(-20, 20)
+            offset_y = random.uniform(-20, 20)  
+            new_path.append((point[0] + offset_x, point[1] + offset_y))
+        return new_path
+    
+    def reset_path(self):
+        self.path = self.randomize_path(self.original_path)
 
     def draw_points(self, win):
         for point in self.path:
@@ -136,5 +149,6 @@ class ComputerCar(AbstractCar):
 
     def next_level(self, level):
         self.reset((160,200))
+        self.reset_path()
         self.vel = self.max_vel + (level - 1) * 0.2
         self.current_point = 0
