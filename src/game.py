@@ -44,7 +44,7 @@ class RacingGame:
             self.all_sprites.add(self.player_car, self.computer_car)
         elif self.game_mode == "two":
             self.player_car = PlayerCar(self.red_car, 4, 4, (190, 200), self.car_move_sound)
-            self.player2_car = PlayerCar(self.purple_car, 2, 2, (160, 200), self.car_move_sound)
+            self.player2_car = PlayerCar(self.purple_car, 2, 4, (160, 200), self.car_move_sound)
             self.all_sprites.add(self.player_car, self.player2_car)
 
         self.game_info = GameInfo()
@@ -172,15 +172,15 @@ class RacingGame:
 
     def run(self):
         run = True
-        gameState = False
+        gameState = 0
         while run:
             self.clock.tick(FPS)
             self.draw()
 
             while not self.game_info.started:
-                if not gameState:
+                if gameState == 0:
                     self.draw_mode_selection()
-                    gameState = True
+                    gameState = 1
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -193,17 +193,16 @@ class RacingGame:
                         elif event.key == pygame.K_2:
                             self.game_mode = "two"
                             self.setup()
-                        elif event.key == pygame.K_ESCAPE:
-                            self.draw_mode_selection()
                         self.game_info.start_level()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        gameState = False
-                        self.draw_mode_selection()
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.game_info.reset()
+                    self.draw_mode_selection()
+                    gameState = 0
 
             self.move_player()
             if self.game_mode == "single":
@@ -213,6 +212,5 @@ class RacingGame:
             self.handle_collision()
 
             if self.game_info.game_finished():
-                blit_text_center(self.win, self.font, "You won the game!")
-                gameState = False
+                blit_text_center(self.win, self.font, "You won the game!")  
                 self.game_info.reset()
