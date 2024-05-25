@@ -17,4 +17,4 @@ RED_CAR_IMG = "assets/images/red-car.png"
 GREEN_CAR_IMG = "assets/images/green-car.png"
 PURPLE_CAR_IMG = "assets/images/purple-car.png"
 
-MAIN_FONT = "comicsans"
+MAIN_FONT = "jetbrainsmono"

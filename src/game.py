@@ -10,7 +10,8 @@ class RacingGame:
         self.win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Racing Game!")
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont(MAIN_FONT, 44)
+        self.font = pygame.font.SysFont(MAIN_FONT, 34)
+        self.button_font = pygame.font.SysFont(MAIN_FONT, 30)
         self.collision_sound = pygame.mixer.Sound("assets/sounds/car_crash.wav")
         self.car_move_sound = pygame.mixer.Sound("assets/sounds/car_move.wav")
         self.tire_sound = pygame.mixer.Sound("assets/sounds/tires_squal_loop.wav")
@@ -68,10 +69,16 @@ class RacingGame:
 
         title_text = self.font.render("Select Game Mode", True, (255, 255, 255))
         self.win.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
-        single_player_text = self.font.render("Single Player (Press 1)", True, (255, 255, 255))
-        two_player_text = self.font.render("Two Player (Press 2)", True, (255, 255, 255))
-        self.win.blit(single_player_text, (SCREEN_WIDTH // 2 - single_player_text.get_width() // 2, SCREEN_HEIGHT // 2 - 50))
-        self.win.blit(two_player_text, (SCREEN_WIDTH // 2 - two_player_text.get_width() // 2, SCREEN_HEIGHT // 2 + 50))
+
+        single_player_text = self.button_font.render("1: Play Single Player", True, (255, 255, 255))
+        self.win.blit(single_player_text, (SCREEN_WIDTH // 2 - single_player_text.get_width() // 2, 300))
+
+        two_player_text = self.button_font.render("2: Two Player", True, (255, 255, 255))
+        self.win.blit(two_player_text, (SCREEN_WIDTH // 2 - two_player_text.get_width() // 2, 400))
+        
+        quit_text = self.button_font.render("q: Quit", True, (255, 255, 255))
+        self.win.blit(quit_text, (SCREEN_WIDTH // 2 - quit_text.get_width() // 2, 500))
+
         pygame.display.update()
 
     def draw(self):
@@ -207,6 +214,9 @@ class RacingGame:
                         elif event.key == pygame.K_2:
                             self.game_mode = "two"
                             self.setup()
+                        elif event.key == pygame.K_q:
+                            pygame.quit()
+                            return                        
                         self.game_info.start_level()
 
             for event in pygame.event.get():
