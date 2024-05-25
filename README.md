@@ -20,7 +20,7 @@ To install and run the game on your local machine, follow these steps:
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/your-username/racing-game.git
+    git clone https://github.com/atayiilmaz/nfs2d.git
     ```
 
 2. **Navigate to the project directory**:
