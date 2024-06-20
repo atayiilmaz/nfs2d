@@ -58,6 +58,7 @@ python main.py
 - S: Move backward
 - A: Turn left
 - D: Turn right
+- For 2 players : Arrow keys
 
 ### Game Flow
 
@@ -66,3 +67,5 @@ python main.py
 - Avoid crashing into the borders or obstacles.
 - Reach the finish line to progress to the next level.
 - The game ends when all levels are completed or the player car crashes.
+
+
